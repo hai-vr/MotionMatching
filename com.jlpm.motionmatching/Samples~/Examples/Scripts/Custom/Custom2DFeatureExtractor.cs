@@ -14,7 +14,7 @@ public class Custom2DFeatureExtractor : IFeatureExtractor2D
         Debug.Assert(found, "Head Joint could not be found");
     }
 
-    public float2 ExtractFeature(PoseVector pose, int poseIndex, Skeleton skeleton, float3 characterOrigin, float3 characterForward)
+    public float2 ExtractFeature(PoseVector pose, int poseIndex, int animationClip, Skeleton skeleton, float3 characterOrigin, float3 characterForward)
     {
         float3 worldPos = FeatureSet.GetWorldPosition(skeleton, pose, HeadJoint);
         float3 localPos = FeatureSet.GetLocalPositionFromCharacter(worldPos, characterOrigin, characterForward);
