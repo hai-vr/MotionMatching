@@ -111,6 +111,7 @@ namespace MotionMatching
             for (int i = 0; i < BodyJoints.Length; i++)
             {
                 Transform targetJoint = Animator.GetBoneTransform(BodyJoints[i]);
+                if (targetJoint == null) continue;
 
                 // Use Array.FindIndex to find the index of the joint in the targetSkeletonBones array
                 int targetJointIndex = Array.FindIndex(targetSkeletonBones, bone => bone.name == targetJoint.name);
@@ -191,6 +192,7 @@ namespace MotionMatching
             // Retargeting
             for (int i = 0; i < BodyJoints.Length; i++)
             {
+                if (TargetBones[i] == null) continue;
                 bool currentJointMask = false;
                 // Unity's Animator Target Rotation
                 Quaternion targetRotation = TargetBones[i].rotation;
@@ -303,7 +305,7 @@ namespace MotionMatching
             }
             PreviousHipsPositionMask = RootPositionsMask;
             // Previous Joint Rotations
-            for (int i = 0; i < PreviousJointRotations.Length; ++i) PreviousJointRotations[i] = TargetBones != null ? TargetBones[i].rotation : quaternion.identity;
+            for (int i = 0; i < PreviousJointRotations.Length; ++i) PreviousJointRotations[i] = TargetBones != null && TargetBones[i] != null ? TargetBones[i].rotation : quaternion.identity;
             PreviousHipsPosition = TargetBones != null ? TargetBones[0].position : float3.zero;
         }
 
@@ -347,8 +349,17 @@ namespace MotionMatching
 
             if (animator == null) return;
 
-            Vector3 leftSole = animator.GetBoneTransform(HumanBodyBones.LeftToes).TransformPoint(ToesSoleOffset);
-            Vector3 rightSole = animator.GetBoneTransform(HumanBodyBones.RightToes).TransformPoint(ToesSoleOffset);
+            var leftToes = animator.GetBoneTransform(HumanBodyBones.LeftToes);
+            var rightToes = animator.GetBoneTransform(HumanBodyBones.RightToes);
+
+            if (leftToes == null || rightToes == null)
+            {
+                leftToes = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+                rightToes = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            }
+            
+            Vector3 leftSole = leftToes.TransformPoint(ToesSoleOffset);
+            Vector3 rightSole = rightToes.TransformPoint(ToesSoleOffset);
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(leftSole, 0.005f);
             Gizmos.DrawSphere(rightSole, 0.005f);
